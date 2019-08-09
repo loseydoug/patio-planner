@@ -1,37 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 
-export default class PatioInfo extends React.Component {
-  constructor( props ) {
-    super( props );
-    this.state = {
-      width: 0.0,
-      length: 0.0,
-      unit: "feet"
-    }
+export const PatioInfo = (props) => {
+  const { length: [length, setLength] } = {
+    length: useState(0.0),
+    ...(props.state || {})
   }
 
-  handleWidthChange = (event) => {
-    this.setState({width: event.target.value});
+  const { width: [width, setWidth] } = {
+    width: useState(0.0),
+    ...(props.state || {})
   }
 
-  handleLengthChange = (event) => {
-    this.setState({length: event.target.value});
+  const { unit: [unit, setUnit] } = {
+    unit: useState("feet"),
+    ...(props.state || {})
   }
 
-  render() {
-    return (
-      <div className="patioInfo">
-        <label for="width">Width</label>
-        <input name="width" className="width" onChange={this.handleWidthChange} />
-        <p className="unit">{this.state.unit}</p>
+  useEffect(
+    () => {
+      props.rowsFn();
+      props.brickOneFn();
+      props.brickTwoFn();
+    }, [width])
 
-        <label for="length">Length</label>
-        <input name="length" className="length" onChange={this.handleLengthChange} />
-        <p className="unit">{this.state.unit}</p>
+  return (
+    <div className="patioInfo">
+      <label for="width">Width</label>
+      <input name="width" className="width" onBlur={e => setWidth(Number(e.target.value))} defaultValue={width} />
+      <p className="unit">{unit}</p>
 
-        <p className="sqft"> = {this.state.width * this.state.length } SqFt </p>
-      </div>
-    );
-  }
+      <label for="length">Length</label>
+      <input name="length" className="length" onBlur={e => setLength(Number(e.target.value))} defaultValue={length} />
+      <p className="unit">{unit}</p>
+
+      <p className="sqft"> = {width * length } SqFt </p>
+    </div>
+  );
 }

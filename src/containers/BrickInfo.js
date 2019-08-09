@@ -1,37 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 
-export default class BrickInfo extends React.Component {
-  constructor( props ) {
-    super( props );
-    this.state = {
-      width: 0.0,
-      length: 0.0,
-      unit: "inches"
-    }
+export const BrickInfo = props => {
+  const { length: [length, setLength] } = {
+    length: useState(0.0),
+    ...(props.state || {})
   }
 
-  handleWidthChange = (event) => {
-    this.setState({width: event.target.value});
+  const { width: [width, setWidth] } = {
+    width: useState(0.0),
+    ...(props.state || {})
   }
 
-  handleLengthChange = (event) => {
-    this.setState({length: event.target.value});
+  const { unit: [unit, setUnit] } = {
+    unit: useState("inches"),
+    ...(props.state || {})
   }
 
-  render() {
-    return (
-      <div className="brickInfo">
-        <label for="width">Width</label>
-        <input name="width" className="width" onChange={this.handleWidthChange} />
-        <p className="unit">{this.state.unit}</p>
-
-        <label for="length">Length</label>
-        <input name="length" className="length" onChange={this.handleLengthChange} />
-        <p className="unit">{this.state.unit}</p>
-
-        <p className="sqft"> = {this.state.width * this.state.length / 144 } SqFt/Brick </p>
-      </div>
-    );
+  const { rows: [rows, setRows] } = {
+    rows: useState(0),
+    ...(props.state || {})
   }
+  
+  useEffect(
+    () => {
+      props.rowsFn();
+    }, [width]
+  )
+  useEffect(
+    () => {
+      props.brickOneFn();
+      props.brickTwoFn();
+    }, [length]
+  )
+  return (
+    <div className="brickInfo">
+      <label for="width">Width</label>
+      <input name="width" className="width" onBlur={ e => setWidth(Number(e.target.value)) } defaultValue={width} />
+      <p className="unit">{unit}</p>
+
+      <label for="length">Length</label>
+      <input name="length" className="length" onBlur={ e => setLength(Number(e.target.value)) } defaultValue={length} />
+      <p className="unit">{unit}</p>
+
+      <p className="sqft"> = {width * length / 144 } SqFt/Brick </p>
+    </div>
+  );
+
 }
