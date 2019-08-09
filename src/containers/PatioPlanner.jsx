@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrickInfo } from './BrickInfo'
 import { GapInfo } from './GapInfo'
 import { PatioInfo } from './PatioInfo'
@@ -187,7 +187,7 @@ export const PatioPlanner = props => {
   const [patioUnit, setPatioUnit] = useState("feet");
   const [maxBrickOne, setMaxBrickOne] = useState(0.0);
   const [maxBrickTwo, setMaxBrickTwo] = useState(0.0);
-  const [rows, setRows] = useState(0.0);
+  const [rows, setRows] = useState(Math.floor((patioWidth * 12) / (brickOneWidth + gap)));
   const [brickBreakdown, setBrickBreakdown] = useState(0.0);
   const [brickOnePerRow, setBrickOnePerRow] = useState(0.0);
   const [brickTwoPerRow, setBrickTwoPerRow] = useState(0.0);
@@ -197,12 +197,8 @@ export const PatioPlanner = props => {
   const [brickTwoNeeded, setBrickTwoNeeded] = useState([]);
 
   const rowsInPatio = () => {
-    const rows = Math.floor((patioWidth * 12) / (brickOneWidth + gap));
-    setRows(rows);
-    setMaxBrickOne(brickOneQty / rows);
-    setMaxBrickTwo(brickTwoQty / rows);
-    setBrickBreakdown(((patioLength * 12) - (Math.floor(maxBrickTwo) * (brickTwoLength + gap))) / (brickOneLength + gap));
-    brickOptions(rows);
+    const rowsUpdate = Math.floor((patioWidth * 12) / (brickOneWidth + gap));
+    setRows(rowsUpdate);
   }
 
   const updateBrickTwoPerRow = () => {
@@ -215,7 +211,7 @@ export const PatioPlanner = props => {
     setBrickOnePerRow(bricks);
   }
 
-  const brickOptions = (rows) => {
+  const brickOptions = () => {
     const brickOne = [];
     const brickTwo = [];
     const brickOneNeeded = [];
@@ -234,10 +230,9 @@ export const PatioPlanner = props => {
     setBrickTwoOptions(brickTwo);
     setBrickOneNeeded(brickOneNeeded);
     setBrickTwoNeeded(brickTwoNeeded);
-    buildBrickOptionsTable(rows);
   }
 
-  const buildBrickOptionsTable = (rows) => {
+  const buildBrickOptionsTable = () => {
     const container = document.getElementById("optionsContainer");
     container.innerHTML = "";
     brickOneOptions.forEach((brickOne, index) => {
@@ -254,6 +249,18 @@ export const PatioPlanner = props => {
       container.appendChild(p);
     })
   }
+  useEffect(
+    () => {
+      setMaxBrickOne(brickOneQty / rows);
+      setMaxBrickTwo(brickTwoQty / rows);
+      setBrickBreakdown(((patioLength * 12) - (Math.floor(maxBrickTwo) * (brickTwoLength + gap))) / (brickOneLength + gap));
+      brickOptions();
+    }, [rows, patioLength]);
+
+  useEffect(
+    () => {
+      buildBrickOptionsTable();
+    }, [brickOneOptions]);
 
   return (
       <div>
